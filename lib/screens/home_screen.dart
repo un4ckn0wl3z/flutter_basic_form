@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form/widgets/checkbox_form_field.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -20,6 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   var _age = 0.0;
   var _channel = 'Facebook';
   var _email = '';
+  var _agreement = false;
+
   final _fkey = GlobalKey<FormState>();
 
   final _channels = ['Facebook', 'Twitter', 'Instagram', 'Line'].map((e) {
@@ -49,8 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
               buildForm(),
               ElevatedButton(
                   onPressed: () {
+                    if (!(_fkey.currentState?.validate() ?? false)) return;
                     _fkey.currentState?.save();
-                    _fkey.currentState?.validate();
 
                     print(
                         'Name ${_nameController.text} ${_surnameController.text}');
@@ -62,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     print('Age $_age ');
                     print('Channel $_channel ');
                     print('Email $_email ');
+                    print('Agreement $_agreement ');
                   },
                   child: Text('บันทึก')),
             ],
@@ -80,7 +84,25 @@ class _HomeScreenState extends State<HomeScreen> {
               maxLength: 50,
               keyboardType: TextInputType.emailAddress,
               onSaved: (value) => _email = value ?? '',
+              validator: (value) {
+                value ??= '';
+                if (value.isEmpty) return 'กรุณากรอกอีเมล';
+                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) return 'อีเมลไม่ถูกต้อง';
+
+                return null;
+              },
             ),
+            CheckboxFormField(
+              title: Text('ยอมรับข้อตกลงการใช้งาน'),
+              initialValue: _agreement,
+              onSaved: (value) => _agreement = value ?? false,
+              validator: (value) {
+                value ??= false;
+                if (!value) return 'กรุณายอมรับข้อตกลงการใช้งาน';
+                return null;
+              },
+            )
           ],
         ),
       );
